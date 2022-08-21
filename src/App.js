@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, Link, useParams, useMatch } from "react-router-dom";
+import { Routes, Route, Link, useMatch, useNavigate } from "react-router-dom";
 
 const Menu = () => {
   const padding = {
@@ -20,9 +20,18 @@ const Menu = () => {
   );
 };
 
-const AnecdoteList = ({ anecdotes }) => (
+const Notification = ({ notification }) => {
+  return (
+    <div>
+      <p>{notification}</p>
+    </div>
+  );
+};
+
+const AnecdoteList = ({ anecdotes, notification }) => (
   <div>
     <h2>Anecdotes</h2>
+    <Notification notification={notification} />
     <ul>
       {anecdotes.map((anecdote) => (
         <li key={anecdote.id}>
@@ -66,19 +75,27 @@ const Footer = () => (
   </div>
 );
 
-const CreateNew = (props) => {
+const CreateNew = ({ addNew, setNotification }) => {
+  const navigate = useNavigate();
+
   const [content, setContent] = useState("");
   const [author, setAuthor] = useState("");
   const [info, setInfo] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    props.addNew({
+    addNew({
       content,
       author,
       info,
       votes: 0,
     });
+
+    setNotification("New anecdote created.");
+    setTimeout(() => {
+      setNotification("");
+    }, 3000);
+    navigate("/");
   };
 
   return (
@@ -172,9 +189,19 @@ const App = () => {
       <h1>Software anecdotes</h1>
       <Menu />
       <Routes>
-        <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
+        <Route
+          path="/"
+          element={
+            <AnecdoteList anecdotes={anecdotes} notification={notification} />
+          }
+        />
         <Route path="/about" element={<About />} />
-        <Route path="/create" element={<CreateNew addNew={addNew} />} />
+        <Route
+          path="/create"
+          element={
+            <CreateNew addNew={addNew} setNotification={setNotification} />
+          }
+        />
         <Route
           path="/anecdotes/:id"
           element={<Anecdote anecdote={anecdote} />}
