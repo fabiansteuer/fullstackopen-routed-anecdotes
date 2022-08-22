@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Routes, Route, Link, useMatch, useNavigate } from "react-router-dom";
+import { useField } from "./hooks/index";
 
 const Menu = () => {
   const padding = {
@@ -78,16 +79,16 @@ const Footer = () => (
 const CreateNew = ({ addNew, setNotification }) => {
   const navigate = useNavigate();
 
-  const [content, setContent] = useState("");
-  const [author, setAuthor] = useState("");
-  const [info, setInfo] = useState("");
+  const content = useField("text");
+  const author = useField("text");
+  const info = useField("text");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0,
     });
 
@@ -98,35 +99,29 @@ const CreateNew = ({ addNew, setNotification }) => {
     navigate("/");
   };
 
+  const resetForm = (e) => {
+    e.preventDefault();
+
+    content.resetValue();
+    author.resetValue();
+    info.resetValue();
+  };
+
   return (
     <div>
-      <h2>create a new anecdote</h2>
+      <h2>Create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          content
-          <input
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          Content: <input name="content" {...content} />
         </div>
         <div>
-          author
-          <input
-            name="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
+          Author: <input name="author" {...author} />
         </div>
         <div>
-          url for more info
-          <input
-            name="info"
-            value={info}
-            onChange={(e) => setInfo(e.target.value)}
-          />
+          URL for more info: <input name="info" {...info} />
         </div>
-        <button>create</button>
+        <button type="submit">Create</button>
+        <button onClick={resetForm}>Reset</button>
       </form>
     </div>
   );
@@ -182,7 +177,6 @@ const App = () => {
   const anecdote = anecdoteIdMatch
     ? anecdoteById(Number(anecdoteIdMatch.params.id))
     : null;
-  console.log(anecdoteIdMatch, anecdote);
 
   return (
     <div>
